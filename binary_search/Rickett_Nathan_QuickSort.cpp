@@ -11,7 +11,9 @@ using std::stringstream;
 
 //reads all floating point numbers from input.txt file
 //stores floating point numbers in an array and returns it
-float * getNumbers(string aFile) {
+int arraySize;
+
+float* getNumbers(string aFile) {
   string line;
   string allLines;
   ifstream file (aFile);
@@ -31,17 +33,18 @@ float * getNumbers(string aFile) {
         counter++;
     }
 
-  float array[counter];
+  float* array = new float[counter];
   stringstream s(allLines);
   string num;
+  arraySize = counter;
   counter = 0;
     while (s >> num) {
         array[counter] = stof(num);
         counter++;
     }
-    cout << array[4];
     return array;
 }
+
 
 //implements quick sort algorithm. Returns sorted array
 /* C implementation QuickSort */
@@ -49,7 +52,6 @@ float * getNumbers(string aFile) {
 // A utility function to swap two elements
 void swap(float* a, float* b)
 {
-   cout << "swapping";
     int t = *a;
     *a = *b;
     *b = t;
@@ -62,7 +64,6 @@ void swap(float* a, float* b)
    of pivot */
 int partition (float arr[], int low, int high)
 {
-  cout << "partition\n";
     int pivot = arr[high];    // pivot
     int i = (low - 1);  // Index of smaller element
  
@@ -106,23 +107,24 @@ void WriteToFile(float* array) {
 
 }
 
-/* Function to print an array */
-void printArray(float* arr, int size)
+//used for debugging
+void printArray(float* array, int size)
 {
-    
+    for (int i = 0; i < size; ++i) {
+      cout << array[i];
+      cout << "\n";
+    }
 }
 
 
 int main(int argc, char *argv[]) {
-  float* array;
   if (argc == 2) {
-    array = getNumbers(argv[1]);
-    //int n = sizeof(array)/sizeof(array[0]);
-    //printArray(array, n);
-    //printArray(array, n);
-    //quickSort(array, 0, n-1);
-    //printf("Sorted array: \n");
-    //WriteToFile(array);
+    float* array = getNumbers(argv[1]);
+    printArray(array, arraySize);
+    quickSort(array, 0, arraySize-1);
+    cout << endl;
+    printArray(array, arraySize);
+    //WriteToFile(array)
   }
   else {
     cout << "there must be exactly one file as parameter";
