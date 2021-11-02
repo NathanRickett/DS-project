@@ -5,17 +5,18 @@
 #include <algorithm>
 #include <unistd.h>
 #include <bits/stdc++.h>
+#include <chrono>
 
-using std::cout;
-using std::endl;
-using std::string;
-using std::ifstream;
-using std::stringstream;
+using namespace std;
+using namespace std::chrono;
 
 int arraySize;
 time_t start, end;
+typedef struct numbers Struct;
 
 
+//reads the numbers in a file and puts them into a float pointer array
+//returns the float pointed array
 float* getNumbers(string aFile) {
   string line;
   string allLines;
@@ -47,15 +48,11 @@ float* getNumbers(string aFile) {
     }
     return array;
 }
-
-
-//implements quick sort algorithm. Returns sorted array
-/* C implementation QuickSort */
  
 // A utility function to swap two elements
 void swap(float* a, float* b)
 {
-    int t = *a;
+    float t = *a;
     *a = *b;
     *b = t;
 }
@@ -68,70 +65,62 @@ void printArray(float* array, int size)
     }
 }
 
-//finds and returns the pivot point using the median of three method
-float* organize(float* array, int low, int middle, int high) {
+
+//finds the pivot using median of three method
+//pivot is then placed into the center
+//lowest values is placed at the beginning
+//highest value is placed at the end
+//returns the new array
+ float* median_of_three(float* array, int low, int middle, int high) {
   float numbers[3] = {array[low], array[middle], array[high]};
-  std::sort(numbers, numbers+3); // sorting the numbers to get the true median
+  sort(numbers, numbers+3);
   array[low] = numbers[0];
   array[middle] = numbers[1];
   array[high] = numbers[2];
   return array;
 }
- 
-int partition (float arr[], int low, int high)
-{
-    int middle = high/2;
-    arr = organize(arr, low, middle, high); // the pivot is now in the center
-    cout << endl << "\npivot: " << arr[middle] << endl;
-    swap(&arr[middle], &arr[high-1]); //swapping pivot to high-1
-    printArray(arr, arraySize);
-    int i = (low);  // Index of smaller element
-    for (int j = low+1; j < high-1; j++)
-    {
-        // If current element is smaller than or
-        // equal to pivot
-        cout << endl << arr[j] << " <= " << arr[high-1] << endl;
-        if (arr[j] <= arr[high-1])  // if j <= the pivot
-        {
-            i++;    // increment index of smaller element
-            cout << "swapping " << arr[i] << " with " <<  arr[j];
-            swap(&arr[i], &arr[j]);
-        }
-    }
-    swap(&arr[i + 1], &arr[high-1]); //swapping i with pivot
-    return (i + 1);
+
+//partitions and sorts the array passed in
+//returns a new pivot index for quicksort function to process recursively
+int partition (float* arr, int low, int high) 
+{ 
+    float pivot = arr[high]; // pivot 
+    int i = (low - 1); // Index of smaller element and indicates the right position of pivot found so far
+  
+    for (int j = low; j <= high - 1; j++) 
+    { 
+        // If current element is smaller than the pivot 
+        if (arr[j] < pivot) 
+        { 
+            i++; // increment index of smaller element 
+            swap(&arr[i], &arr[j]); 
+        } 
+    } 
+    swap(&arr[i + 1], &arr[high]); 
+    return (i + 1); 
 }
 
- 
-/* The main function that implements QuickSort
- arr[] --> Array to be sorted,
-  low  --> Starting index,
-  high  --> Ending index */
-void quickSort(float arr[], int low, int high) {
-    time(&start);
-    if (low < high)
-    {
-        /* pi is partitioning index, arr[p] is now
-           at right place */
-        int pi = partition(arr, low, high);
-        cout << "new patition index: " << pi << endl;
-        printArray(arr, arraySize);
- 
-        // Separately sort elements before
-        // partition and after partition
-        quickSort(arr, low, pi - 1);
-        quickSort(arr, pi + 1, high);
-    }
-    time(&end);
+//quicksorts a given array using the middle element as the pivot
+//the array passed in should already have the median of three value in the center
+void quickSort(float* array, int low, int high)
+{
+  if (low < high) 
+    { 
+        /* pi is partitioning index, arr[p] is now 
+        at right place */
+        int pi = partition(array, low, high); 
+  
+        // Separately sort elements before 
+        // partition and after partition 
+        quickSort(array, low, pi - 1); 
+        quickSort(array, pi + 1, high); 
+    } 
 }
- 
+
 
 //Output the time taken for the quick sort algorithm to a text file
-void makeAverageExecution(int inputSize, double timeTaken) {
-  string file_name = "Rickett_Nathan_averageExecutionTime.txt";
-  std::ofstream file;
-  file.open(file_name, std::ios::out | std::ios::app);
-  file << endl << inputSize << "         " << timeTaken;
+void makeAverageExecution() {
+  
 }
 
 void makeExecution(int inputSize, double timeTaken) {
@@ -141,26 +130,73 @@ void makeExecution(int inputSize, double timeTaken) {
   file << endl << inputSize << "         " << timeTaken;
 }
 
+//THIS FUNCTION IS FOR RECORDING EXECUTION TIMES AND IS NOT NORMALLY USED IN THE PROGRAM EXCEPT FOR TESTING!!!!
+void recordTimes() {
+  for (int i = 0 ; i < 100; ++i) {
+      string file_name = "numbers/ten" + std::to_string(i+1) + ".txt";
+      float* array = getNumbers(file_name);
+      auto start = high_resolution_clock::now(); //starting the timer
+      quickSort(array, 0, arraySize-1);
+      auto stop = high_resolution_clock::now(); //stopping the timer
+      auto duration = duration_cast<microseconds>(stop - start); // setting the execution time variable
+      makeExecution(10, duration.count()); // writing to file
+  }
+  for (int i = 0 ; i < 100; ++i) {
+      string file_name = "numbers/one_hundred" + std::to_string(i+1) + ".txt";
+      float* array = getNumbers(file_name);
+      auto start = high_resolution_clock::now(); //starting the timer
+      quickSort(array, 0, arraySize-1);
+      auto stop = high_resolution_clock::now(); //stopping the timer
+      auto duration = duration_cast<microseconds>(stop - start); // setting the execution time variable
+      makeExecution(100, duration.count()); // writing to file
+  }
+  for (int i = 0 ; i < 100; ++i) {
+      string file_name = "numbers/one_thousand" + std::to_string(i+1) + ".txt";
+      float* array = getNumbers(file_name);
+      auto start = high_resolution_clock::now(); //starting the timer
+      quickSort(array, 0, arraySize-1);
+      auto stop = high_resolution_clock::now(); //stopping the timer
+      auto duration = duration_cast<microseconds>(stop - start); // setting the execution time variable
+      makeExecution(1000, duration.count()); // writing to file
+  }
+  for (int i = 0 ; i < 100; ++i) {
+      string file_name = "numbers/ten_thousand" + std::to_string(i+1) + ".txt";
+      float* array = getNumbers(file_name);
+      auto start = high_resolution_clock::now(); //starting the timer
+      quickSort(array, 0, arraySize-1);
+      auto stop = high_resolution_clock::now(); //stopping the timer
+      auto duration = duration_cast<microseconds>(stop - start); // setting the execution time variable
+      makeExecution(10000, duration.count()); // writing to file
+  }
+  for (int i = 0 ; i < 100; ++i) {
+      string file_name = "numbers/one_hundred_thousand" + std::to_string(i+1) + ".txt";
+      float* array = getNumbers(file_name);
+      auto start = high_resolution_clock::now(); //starting the timer
+      quickSort(array, 0, arraySize-1);
+      auto stop = high_resolution_clock::now(); //stopping the timer
+      auto duration = duration_cast<microseconds>(stop - start); // setting the execution time variable
+      makeExecution(100000, duration.count()); // writing to file
+  }
+
+  makeAverageExecution();
+}
+
 
 int main(int argc, char *argv[]) {
-  /**
-   if (argc == 2) {
+    if (argc == 2) {
     
     float* array = getNumbers(argv[1]);
+    array = median_of_three(array, 0, (arraySize-1)/2, (arraySize-1));
+
+    auto start = high_resolution_clock::now(); //starting the timer
     quickSort(array, 0, arraySize-1);
-    double time_taken = double(end - start);
+    auto stop = high_resolution_clock::now(); //stopping the timer
+    auto duration = duration_cast<microseconds>(stop - start); // setting the execution time variable
+
+    
   }
   else {
     cout << "there must be exactly one file as parameter";
-  }
-   * **/
-
-  for (int i = 0 ; i < 1; ++i) {
-      string file_name = "numbers/one_hundred_thousand" + std::to_string(i+1) + ".txt";
-      float* array = getNumbers(file_name);
-      quickSort(array, 0, arraySize-1);
-      double time_taken = double(end - start);
-      makeExecution(100000, time_taken);
   }
   return 0;
 }
