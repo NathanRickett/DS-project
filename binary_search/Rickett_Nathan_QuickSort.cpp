@@ -118,7 +118,7 @@ int main(int argc, char *argv[]) {
     if (argc == 3) {
     const char* INPUT_FILE = argv[1];
     const char* OUTPUT_FILE = argv[2];
-    float* array = getNumbers(argv[1]); // retrieving the input numbers from the input file
+    float* array = getNumbers(INPUT_FILE); // retrieving the input numbers from the input file
     array = median_of_three(array, 0, (arraySize-1)/2, (arraySize-1)); // setting the pivot as the median of three
     auto start = high_resolution_clock::now(); //starting the timer
     quickSort(array, 0, arraySize-1); // implementing quick sort algorithm
