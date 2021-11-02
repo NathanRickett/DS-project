@@ -1,3 +1,6 @@
+//COPYRIGHT NATHAN RICKETT 2021
+//CSCE 350 SECTION 002
+
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -12,11 +15,9 @@ using namespace std::chrono;
 
 int arraySize;
 time_t start, end;
-typedef struct numbers Struct;
-
 
 //reads the numbers in a file and puts them into a float pointer array
-//returns the float pointed array
+//returns the float pointer array
 float* getNumbers(string aFile) {
   string line;
   string allLines;
@@ -29,14 +30,14 @@ float* getNumbers(string aFile) {
     file.close();
   }
   else cout << "Unable to open file"; 
-
+  //getting the size of the array
   stringstream ss(allLines);
   string word;
   int counter = 0;
     while (ss >> word) {
         counter++;
     }
-
+  //creating the float pointer array
   float* array = new float[counter];
   stringstream s(allLines);
   string num;
@@ -49,28 +50,23 @@ float* getNumbers(string aFile) {
     return array;
 }
  
-// A utility function to swap two elements
-void swap(float* a, float* b)
+// function for swapping to values within a pointer array
+void swap(float* num1, float* num2)
 {
-    float t = *a;
-    *a = *b;
-    *b = t;
-}
-
-//used for debugging
-void printArray(float* array, int size)
-{
-    for (int i = 0; i < size; ++i) {
-      cout << array[i] << " ";
-    }
+    float temp = *num1;
+    *num1 = *num2;
+    *num2 = temp;
 }
 
 
-//finds the pivot using median of three method
-//pivot is then placed into the center
-//lowest values is placed at the beginning
-//highest value is placed at the end
-//returns the new array
+/**
+ * finds the pivot using median of three method
+   pivot is then placed into the center
+   lowest values is placed at the beginning
+   highest value is placed at the end
+   returns the new array
+ * **/
+
  float* median_of_three(float* array, int low, int middle, int high) {
   float numbers[3] = {array[low], array[middle], array[high]};
   sort(numbers, numbers+3);
@@ -84,119 +80,54 @@ void printArray(float* array, int size)
 //returns a new pivot index for quicksort function to process recursively
 int partition (float* arr, int low, int high) 
 { 
-    float pivot = arr[high]; // pivot 
     int i = (low - 1); // Index of smaller element and indicates the right position of pivot found so far
-  
-    for (int j = low; j <= high - 1; j++) 
-    { 
-        // If current element is smaller than the pivot 
-        if (arr[j] < pivot) 
-        { 
-            i++; // increment index of smaller element 
-            swap(&arr[i], &arr[j]); 
+    float pivot = arr[high]; // pivot 
+    for (int k = low; k <= high - 1; k++) { 
+        if (arr[k] < pivot) { // if current position in array is smaller than the pivot
+            i++;
+            swap(&arr[i], &arr[k]); // swap i with k
         } 
     } 
-    swap(&arr[i + 1], &arr[high]); 
-    return (i + 1); 
+    swap(&arr[i + 1], &arr[high]); // after the loop, swap pivot with i
+    return (i + 1); // return i + 1 as the new pivot index
 }
 
 //quicksorts a given array using the middle element as the pivot
 //the array passed in should already have the median of three value in the center
 void quickSort(float* array, int low, int high)
 {
-  if (low < high) 
-    { 
-        /* pi is partitioning index, arr[p] is now 
-        at right place */
-        int pi = partition(array, low, high); 
-  
-        // Separately sort elements before 
-        // partition and after partition 
-        quickSort(array, low, pi - 1); 
-        quickSort(array, pi + 1, high); 
+  if (low < high) {
+        int pIDX = partition(array, low, high); // a pivot index used received from calling partition function
+        quickSort(array, low, pIDX - 1); // sort the left side of the pivot
+        quickSort(array, pIDX + 1, high); // sort the right side of the pivot
     } 
 }
 
-
-//Output the time taken for the quick sort algorithm to a text file
-void makeAverageExecution() {
-  
-}
-
-void makeExecution(int inputSize, double timeTaken) {
-  string file_name = "Rickett_Nathan_executionTime.txt";
+//writes the sorted array and time for execution to the specified file
+void writeToFile(float* array, const char* fileName, double timeTaken) {
   std::ofstream file;
-  file.open(file_name, std::ios::out | std::ios::app);
-  file << endl << inputSize << "         " << timeTaken;
+  file.open(fileName, std::ios::out | std::ios::app);
+  for (int i = 0; i < arraySize; ++i) {
+    file << array[i] << " ";
+  }
+  file << endl << "Time: " << timeTaken << " milliseconds" << endl;
+  file.close();
 }
-
-//THIS FUNCTION IS FOR RECORDING EXECUTION TIMES AND IS NOT NORMALLY USED IN THE PROGRAM EXCEPT FOR TESTING!!!!
-void recordTimes() {
-  for (int i = 0 ; i < 100; ++i) {
-      string file_name = "numbers/ten" + std::to_string(i+1) + ".txt";
-      float* array = getNumbers(file_name);
-      auto start = high_resolution_clock::now(); //starting the timer
-      quickSort(array, 0, arraySize-1);
-      auto stop = high_resolution_clock::now(); //stopping the timer
-      auto duration = duration_cast<microseconds>(stop - start); // setting the execution time variable
-      makeExecution(10, duration.count()); // writing to file
-  }
-  for (int i = 0 ; i < 100; ++i) {
-      string file_name = "numbers/one_hundred" + std::to_string(i+1) + ".txt";
-      float* array = getNumbers(file_name);
-      auto start = high_resolution_clock::now(); //starting the timer
-      quickSort(array, 0, arraySize-1);
-      auto stop = high_resolution_clock::now(); //stopping the timer
-      auto duration = duration_cast<microseconds>(stop - start); // setting the execution time variable
-      makeExecution(100, duration.count()); // writing to file
-  }
-  for (int i = 0 ; i < 100; ++i) {
-      string file_name = "numbers/one_thousand" + std::to_string(i+1) + ".txt";
-      float* array = getNumbers(file_name);
-      auto start = high_resolution_clock::now(); //starting the timer
-      quickSort(array, 0, arraySize-1);
-      auto stop = high_resolution_clock::now(); //stopping the timer
-      auto duration = duration_cast<microseconds>(stop - start); // setting the execution time variable
-      makeExecution(1000, duration.count()); // writing to file
-  }
-  for (int i = 0 ; i < 100; ++i) {
-      string file_name = "numbers/ten_thousand" + std::to_string(i+1) + ".txt";
-      float* array = getNumbers(file_name);
-      auto start = high_resolution_clock::now(); //starting the timer
-      quickSort(array, 0, arraySize-1);
-      auto stop = high_resolution_clock::now(); //stopping the timer
-      auto duration = duration_cast<microseconds>(stop - start); // setting the execution time variable
-      makeExecution(10000, duration.count()); // writing to file
-  }
-  for (int i = 0 ; i < 100; ++i) {
-      string file_name = "numbers/one_hundred_thousand" + std::to_string(i+1) + ".txt";
-      float* array = getNumbers(file_name);
-      auto start = high_resolution_clock::now(); //starting the timer
-      quickSort(array, 0, arraySize-1);
-      auto stop = high_resolution_clock::now(); //stopping the timer
-      auto duration = duration_cast<microseconds>(stop - start); // setting the execution time variable
-      makeExecution(100000, duration.count()); // writing to file
-  }
-
-  makeAverageExecution();
-}
-
 
 int main(int argc, char *argv[]) {
-    if (argc == 2) {
-    
-    float* array = getNumbers(argv[1]);
-    array = median_of_three(array, 0, (arraySize-1)/2, (arraySize-1));
-
+    if (argc == 3) {
+    const char* INPUT_FILE = argv[1];
+    const char* OUTPUT_FILE = argv[2];
+    float* array = getNumbers(argv[1]); // retrieving the input numbers from the input file
+    array = median_of_three(array, 0, (arraySize-1)/2, (arraySize-1)); // setting the pivot as the median of three
     auto start = high_resolution_clock::now(); //starting the timer
-    quickSort(array, 0, arraySize-1);
+    quickSort(array, 0, arraySize-1); // implementing quick sort algorithm
     auto stop = high_resolution_clock::now(); //stopping the timer
     auto duration = duration_cast<microseconds>(stop - start); // setting the execution time variable
-
-    
+    writeToFile(array, OUTPUT_FILE, duration.count()); // writing to file
   }
   else {
-    cout << "there must be exactly one file as parameter";
+    cout << "there must be exactly two files as parameter";
   }
   return 0;
 }

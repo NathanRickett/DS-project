@@ -1,3 +1,6 @@
+//COPYRIGHT NATHAN RICKETT 2021
+//CSCE 350 SECTION 002
+
 #include <iostream>
 #include <fstream>
 

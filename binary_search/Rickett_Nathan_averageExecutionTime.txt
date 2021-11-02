@@ -1,4 +1,6 @@
-inputSize   AverageExecutionTime
-1000         0
-1000         0
-1000         0
+inputSize   AverageExecutionTime (milliseconds)
+10          0.16
+100         6.59
+1000        123.82
+10000       1773.82
+100000      20119.16
